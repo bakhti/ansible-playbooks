@@ -1,0 +1,38 @@
+---
+- name: AWS credentials
+  template:
+    src=aws_config.j2
+    dest=/root/.aws_config
+    owner=root group=root
+    mode=0600
+
+- name: MySQL credentials
+  template:
+    src=my_cnf_client.j2
+    dest=/root/.my.cnf
+    owner=root group=root
+    mode=0600
+
+- name: Create bin directory
+  file:
+    path=/root/bin
+    owner=root group=root mode=755
+    state=directory
+
+- name: Tables to exclude from backup
+  copy:
+    src=tables2exclude
+    dest=/root/bin/tables2exclude
+    owner=root group=root
+
+- name: XtraBackup wrapper script
+  copy:
+    src=xtbackup.sh
+    dest=/root/bin/xtbackup.sh
+    owner=root group=root
+
+- name: Create a cron job on db-statistics
+  cron:
+    name="backup DB to S3" minute=30 hour=22
+    user="root" job="AWS_CONFIG_FILE=/root/.aws_config /root/bin/xtbackup.sh {{ backup_db[ec2_tag_Name] }}"
+    cron_file=backupDB2s3

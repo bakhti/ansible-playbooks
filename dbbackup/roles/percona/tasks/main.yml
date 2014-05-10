@@ -1,0 +1,30 @@
+---
+- name: Download key file for Ubuntu 12.04
+  copy:
+    src=percona.key
+    dest=/tmp/percona-key-CD2EFD2A.gpg
+  when: ansible_lsb.codename == "precise"
+
+- name: Add percona repo key for Ubuntu 12.04
+  apt_key:
+    id=CD2EFD2A
+    file=/tmp/percona-key-CD2EFD2A.gpg
+  when: ansible_lsb.codename == "precise"
+
+- name: Add percona repo key for Ubuntu 12.10 or later
+  apt_key:
+    id=CD2EFD2A
+    url='http://keys.gnupg.net/pks/lookup?op=get&search=0x1C4CBDCDCD2EFD2A'
+  when: ansible_lsb.codename != "precise"
+
+- name: Add percona repo
+  apt_repository:
+    repo="deb http://repo.percona.com/apt {{ ansible_distribution_release }} main"
+    update_cache=yes
+    
+- name: Install backup tools
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - percona-xtrabackup
+    - pigz
+    - pbzip2

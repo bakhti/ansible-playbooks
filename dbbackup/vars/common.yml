@@ -1,0 +1,8 @@
+---
+aws_key_id: AKIA...
+aws_secret_key: 
+my_user: root
+my_password: MyMysqlRootPassword
+backup_db:
+  dbsrv1: db2backup1
+  dbsrv2: db2backup2
