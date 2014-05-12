@@ -29,7 +29,7 @@
   copy:
     src=xtbackup.sh
     dest=/root/bin/xtbackup.sh
-    owner=root group=root
+    owner=root group=root mode=755
 
 - name: Create a cron job on db-statistics
   cron:
