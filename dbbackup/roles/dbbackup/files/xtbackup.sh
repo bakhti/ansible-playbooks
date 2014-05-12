@@ -22,10 +22,9 @@ ionice -c 2 -n 7 \
        $full_backup_dir > $log 2>&1
 
 cd $full_backup_dir
-for i in $(ls $full_backup_dir); do
-    tar --create --file ${INAME}_${i}.tar --directory $full_backup_dir --remove-files ${i} && pbzip2 ${INAME}_${i}.tar
-    aws s3 cp ${INAME}_${i}.tar.bz2 s3://${S3B}/${DB}/ && rm -f ${INAME}_${i}.tar.bz2
-done
+BKNAME=$(basename $(awk "/Backup created in directory/{split(\$0, p, \"'\"); print p[2]}" $log))
+tar --create --file ${INAME}_${BKNAME}.tar --directory $full_backup_dir --remove-files ${BKNAME} && pbzip2 ${INAME}_${BKNAME}.tar
+aws s3 cp ${INAME}_${BKNAME}.tar.bz2 s3://${S3B}/adwords/ && rm -f ${INAME}_${BKNAME}.tar.bz2
 
 OLD=$(aws s3 ls s3://${S3B}/${DB}/ |grep ${INAME}_$(date +%F -d  '3 day ago') |awk '{print $NF}')
 aws s3 rm s3://${S3B}/${DB}/$OLD
