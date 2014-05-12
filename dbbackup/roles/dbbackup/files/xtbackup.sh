@@ -27,6 +27,6 @@ tar --create --file ${INAME}_${BKNAME}.tar --directory $full_backup_dir --remove
 aws s3 cp ${INAME}_${BKNAME}.tar.bz2 s3://${S3B}/adwords/ && rm -f ${INAME}_${BKNAME}.tar.bz2
 
 OLD=$(aws s3 ls s3://${S3B}/${DB}/ |grep ${INAME}_$(date +%F -d  '3 day ago') |awk '{print $NF}')
-aws s3 rm s3://${S3B}/${DB}/$OLD
+[ -z "$OLD" ] || aws s3 rm s3://${S3B}/${DB}/$OLD
 
 exit 0
