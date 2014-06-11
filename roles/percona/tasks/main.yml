@@ -1,0 +1,23 @@
+---
+- name: Add percona apt repo key
+  apt_key:
+    id=CD2EFD2A
+    url='http://keys.gnupg.net/pks/lookup?op=get&search=0x1C4CBDCDCD2EFD2A'
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  sudo: yes
+
+- name: Add percona apt repo
+  apt_repository:
+    repo="deb http://repo.percona.com/apt {{ ansible_distribution_release }} main"
+    update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  sudo: yes
+    
+- name: Install backup tools
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - percona-xtrabackup
+    - pigz
+    - pbzip2
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  sudo: yes

@@ -1,0 +1,23 @@
+---
+- name: PIP apt package
+  apt:
+    pkg=python-pip
+    state=latest
+    update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  sudo: yes
+
+- name: Awscli PIP packages
+  pip: name={{ item }} state=latest
+  with_items:
+    - boto
+    - awscli
+  sudo: yes
+
+- name: AWS Credentials
+  template:
+    src=aws_config.j2
+    dest=/root/.aws_config
+    owner=root group=root mode=0600
+  sudo: yes
+  when: aws_key_id is defined and aws_secret_key is defined

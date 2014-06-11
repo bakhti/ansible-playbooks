@@ -1,0 +1,21 @@
+---
+- name: Install common apt packages
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - mc
+    - git-core
+    - htop
+    - python-pycurl
+    - python-mysqldb
+    - python-apt
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  sudo: yes
+
+- name: Create some dirs
+  file:
+    path=/{{ item.path }}
+    state=directory owner=root group=root
+  with_items:
+    - { path: 'data' }
+  sudo: yes
+

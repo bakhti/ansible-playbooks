@@ -1,12 +1,13 @@
 ---
 aws_key_id: AKIA...
 aws_secret_key: my_secret_key
+my_root_password: mysql_root_password
 my_user:
-  dbsrv1: root
-  dbsrv2: root
+  dbsrv1: user
+  dbsrv2: user
 my_password:
-  dbsrv1: MyMysqlRootPassword
-  dbsrv2: MyMysqlRootPassword
+  dbsrv1: MyMysqlPassword
+  dbsrv2: MyMysqlPassword
 backup_db:
   dbsrv1: db2backup1
   dbsrv2: db2backup2
