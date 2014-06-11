@@ -6,11 +6,6 @@ Install [awscli](https://github.com/aws/aws-cli) and create credentials file.
 Requirements
 ------------
 
-### Platforms
-
-- Debian
-- Ubuntu
-
 ### Roles
 
 - common

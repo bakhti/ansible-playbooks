@@ -1,12 +1,4 @@
 ---
-- name: PIP apt package
-  apt:
-    pkg=python-pip
-    state=latest
-    update_cache=yes
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-  sudo: yes
-
 - name: Awscli PIP packages
   pip: name={{ item }} state=latest
   with_items:

@@ -1,10 +1,11 @@
 ---
 - name: Install common apt packages
-  apt: pkg={{ item }} state=latest
+  apt: pkg={{ item }} state=latest update_cache=yes
   with_items:
     - mc
     - git-core
     - htop
+    - python-pip
     - python-pycurl
     - python-mysqldb
     - python-apt
