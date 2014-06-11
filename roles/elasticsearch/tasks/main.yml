@@ -1,0 +1,27 @@
+---
+- name: Add ES apt key
+  apt_key:
+    url='http://packages.elasticsearch.org/GPG-KEY-elasticsearch'
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  sudo: yes
+
+- name: Add ES apt repo
+  apt_repository:
+    repo="deb http://packages.elasticsearch.org/elasticsearch/{{ elasticsearch_version }}/{{ ansible_os_family|lower }} stable main"
+    update_cache=yes
+  sudo: yes
+
+- name: Install ES apt packages
+  apt: pkg={{ item }} update_cache=yes state=present
+  with_items:
+   - elasticsearch
+   - openntpd
+   - openjdk-7-jre-headless
+  sudo: yes
+  notify: Restart elasticsearch
+
+- name: Curator PIP package
+  pip: name={{ item }} state=latest
+  with_items:
+    - elasticsearch-curator
+  sudo: yes

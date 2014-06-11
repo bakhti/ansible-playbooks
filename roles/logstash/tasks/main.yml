@@ -1,0 +1,57 @@
+---
+- name: Add ES apt key
+  apt_key:
+    url='http://packages.elasticsearch.org/GPG-KEY-elasticsearch'
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  sudo: yes
+
+- name: Add logstash apt repo
+  apt_repository:
+    repo="deb http://packages.elasticsearch.org/logstash/{{ logstash_version }}/{{ ansible_os_family|lower }} stable main"
+    update_cache=yes
+  sudo: yes
+
+- name: Install logstash apt packages
+  apt: pkg={{ item }} update_cache=yes state=present
+  with_items:
+   - logstash
+   - logstash-contrib
+   - openjdk-7-jre-headless
+   - jq
+  sudo: yes
+  notify: Restart logstash
+
+- name: Configuration files
+  template:
+    src={{ item.src }}
+    dest=/etc/logstash/conf.d/{{ item.dest }}
+  with_items:
+    - { src: logstash_input.conf.j2, dest: input.conf }
+    - { src: logstash_filter.conf.j2, dest: filter.conf }
+    - { src: logstash_output.conf.j2, dest: output.conf }
+  sudo: yes
+  notify: Restart logstash
+
+- name: Create bin directory
+  file:
+    path=/root/bin
+    owner=root group=root mode=755
+    state=directory
+  sudo: yes
+
+- name: script to get logs from S3
+  file:
+    src=get_logs_from_s3.sh
+    dest=/root/bin/get_logs_from_s3.sh
+    owner=root group=root mode=755
+  sudo: yes
+
+- name: Create a cron job
+  cron:
+    name="get logs from S3" minute={{ item.min }}
+    user="root" job="SHELL=/bin/bash AWS_CONFIG_FILE=/root/.aws_config /root/bin/get_logs_from_s3.sh {{ item.name }}"
+    cron_file=logs_from_s3
+  with_items:
+    - { name: elb, min: 20 }
+    - { name: trail, min: 40 }
+  sudo: yes

@@ -1,0 +1,45 @@
+---
+- name: Get source files
+  git:
+    repo=https://github.com/elasticsearch/kibana.git
+    dest={{ app_path }}/kibana
+    version={{ kibana_version }}
+  sudo: yes
+
+- name: Modify config.js
+  lineinfile:
+    dest={{ app_path }}/kibana/src/config.js
+    regexp='^(\s*elasticsearch:.*):9200(.*)$'
+    line='\1:80\2'
+    backrefs=yes
+  sudo: yes
+  
+- name: App files ownership
+  file:
+    path={{ app_path }}
+    state=directory
+    owner={{ app_user }} group={{ app_user }} recurse=yes
+  sudo: yes
+
+- name: Generate HTTP password file
+  shell:
+    chdir=/etc/nginx/conf.d
+    creates=/etc/nginx/conf.d/.kibana.htpasswd
+    echo "{{ http_user }}:$(openssl passwd -crypt {{ http_password }}):kibana" |tee .kibana.htpasswd
+  sudo: yes
+  register: http_pass_gen
+
+- name: HTTP password file permissions
+  file:
+    path=/etc/nginx/conf.d/.kibana.htpasswd
+    owner=nginx group=root mode=400
+  sudo: yes
+  when: http_pass_gen|changed
+
+- name: Nginx config file
+  template:
+    src=kibana-default.j2
+    dest=/etc/nginx/conf.d/kibana.conf
+    owner=root group=root mode=644
+  sudo: yes
+  notify: Restart nginx

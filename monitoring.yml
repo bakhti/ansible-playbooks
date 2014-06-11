@@ -1,0 +1,31 @@
+---
+- hosts: ec2_tag_Name_monitoring
+  user: ubuntu
+  vars:
+    elasticsearch_version: 1.0
+    logstash_version: 1.4
+    kibana_version: v3.0.1
+    es_host: 127.0.0.1
+    http_user: kibana
+    http_password: kibanapass
+    allowed_addresses:
+      - 127.0.0.1
+      - 33.33.33.1
+    elb:
+      eu-west-1:
+        - { name: awseb-e-1-AWSEBLoa-ELB1ID, tag: project1_name }
+      us-east-1:
+        - { name: awseb-e-2-AWSEBLoa-ELB2ID, tag: project2_name }
+    aws_key_id: AKIAAWSKEYID
+    aws_secret_key: AWSSECRETKEY
+    app_path: /var/www
+    app_user: nginx
+
+  roles:
+    - common
+    - awscli
+    - nginx
+    - elasticsearch
+    - kibana
+    - logstash
+    
