@@ -32,7 +32,7 @@
 - name: HTTP password file permissions
   file:
     path=/etc/nginx/conf.d/.kibana.htpasswd
-    owner=nginx group=root mode=400
+    owner={{ app_user }} group=root mode=400
   sudo: yes
   when: http_pass_gen|changed
 

@@ -1,0 +1,21 @@
+---
+- name: Add chris-lea ppa repo
+  apt_repository:
+    repo=ppa:chris-lea/node.js
+    update_cache=yes
+  when: ansible_distribution == 'Ubuntu'
+  sudo: yes
+    
+- name: Install node.js apt package
+  apt: pkg=nodejs state=latest
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  sudo: yes
+
+- name: Install global NPM packages
+  npm: name={{ item }} global=yes
+  with_items:
+    - less
+    - clean-css
+    - grunt
+    - grunt-cli
+  sudo: yes
