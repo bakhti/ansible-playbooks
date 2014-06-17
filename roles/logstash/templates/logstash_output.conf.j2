@@ -1,11 +1,11 @@
 output {
-    if "_grokparsefailure" not in [tags] {
-	elasticsearch {
-	    host => localhost
-	}
-    } else {
-	file {
-	    name => /var/log/logstash/logstash_debug-%{+YYYY-MM-dd}.log
-	}
+  if '_grokparsefailure' not in [tags] {
+    elasticsearch {
+      host => localhost
     }
+  } else {
+    file {
+      path => '/var/log/logstash/logstash_debug-%{+YYYY-MM-dd}.log'
+    }
+  }
 }

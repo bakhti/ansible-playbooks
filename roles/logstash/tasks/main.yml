@@ -7,7 +7,7 @@
 
 - name: Add logstash apt repo
   apt_repository:
-    repo="deb http://packages.elasticsearch.org/logstash/{{ logstash_version }}/{{ ansible_os_family|lower }} stable main"
+    repo="deb http://packages.elasticsearch.org/logstash/{{ logstash.version }}/{{ ansible_os_family|lower }} stable main"
     update_cache=yes
   sudo: yes
 
@@ -50,7 +50,7 @@
   cron:
     name="get logs from S3" minute={{ item.min }}
     user="root" job="SHELL=/bin/bash AWS_CONFIG_FILE=/root/.aws_config /root/bin/get_logs_from_s3.sh {{ item.name }}"
-    cron_file=logs_from_s3
+    cron_file={{ item.name }}_logs_from_s3
   with_items:
     - { name: elb, min: 20 }
     - { name: trail, min: 40 }

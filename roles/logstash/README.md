@@ -20,10 +20,15 @@ Requirements
 ### Variables
 
 ```yaml
-logstash_version: 1.4
+logstash:
+  version: 1.4
+  tcp:
+    - { host: 127.0.0.1, port: 3333, tags: [ 'elb', 'eu-west-1' ] }
+    - { host: 127.0.0.1, port: 3334, tags: [ 'elb', 'us-east-1' ] }
+    - { host: 127.0.0.1, port: 3335, tags: [ 'cloudtrail' ] }
 elb:
   eu-west-1:
-    - { name: awseb-e-1-AWSEBLoa-ELB1ID, tag: project1_name }
+    - { elbid: awseb-e-1-AWSEBLoa-ELB1ID, tags: [ 'project1_name' ] }
   us-east-1:
-    - { name: awseb-e-2-AWSEBLoa-ELB2ID, tag: project2_name }
+    - { elbid: awseb-e-2-AWSEBLoa-ELB2ID, tags: [ 'project2_name' ] }
 ```

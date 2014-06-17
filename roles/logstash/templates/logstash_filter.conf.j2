@@ -1,36 +1,49 @@
 filter {
-    if "cloudtrail" in [tags] {
-	date {
-	    'match' => ['eventTime', 'ISO8601']
-	}
+  if 'cloudtrail' in [tags] {
+    date {
+      'match' => ['eventTime', 'ISO8601']
     }
-    if "elb" in [tags] {
-	grok {
-	    match => [ "message", "%{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:loadbalancer} %{IP:client_ip}:%{NUMBER:client_port:int} %{IP:backend_ip}:%{NUMBER:backend_port:int} %{NUMBER:request_processing_time:float} %{NUMBER:backend_processing_time:float} %{NUMBER:response_processing_time:float} %{NUMBER:elb_status_code:int} %{NUMBER:backend_status_code:int} %{NUMBER:received_bytes:int} %{NUMBER:sent_bytes:int} %{QS:request}" ]
-	}
-	date {
-	    match => [ "timestamp", "ISO8601"]
-	}
-	grok {
-	    match => [ "request", "%{WORD} %{URIPROTO}://(?:%{USER}(?::[^@]*)?@)?(?:%{IPORHOST:domain}(?::%{POSINT})?)?(?:%{URIPATH:uripath}(?:%{URIPARAM:uriparams})?)? HTTP/%{NUMBER}" ]
-	}
+  }
+
+  if 'elb' in [tags] {
+    grok {
+      match => [ 'message', '%{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:loadbalancer} %{IP:client_ip}:%{NUMBER:client_port:int} %{IP:backend_ip}:%{NUMBER:backend_port:int} %{NUMBER:request_processing_time:float} %{NUMBER:backend_processing_time:float} %{NUMBER:response_processing_time:float} %{NUMBER:elb_status_code:int} %{NUMBER:backend_status_code:int} %{NUMBER:received_bytes:int} %{NUMBER:sent_bytes:int} %{QS:request}' ]
     }
-    if "eu-west-1" in [tags] {
+    date {
+      match => [ 'timestamp', 'ISO8601']
+    }
+    if [request] {
+      grok {
+        match => [ 'request', '%{WORD} %{URIPROTO}://(?:%{USER}(?::[^@]*)?@)?(?:%{IPORHOST:domain}(?::%{POSINT})?)?(?:%{URIPATH:uripath}(?:%{URIPARAM:uriparams})?)? HTTP/%{NUMBER}' ]
+        remove_field => [ 'message' ]
+      }
+      if [uriparams] {
+        mutate {
+          remove_field => [ 'request' ]
+        }
+      }
+    }
+{% if elb.eu_west_1 is defined %}
+    if 'eu-west-1' in [tags] {
 {% for item in elb.eu-west-1 %}
-	if "{{ elb.eu-west-1.name }}" in [loadbalancer] {
-	    mutate {
-		add_tag => [ "{{ elb.eu-west-1.tag }}" ]
-	    }
-	}
+      if '{{ item.elbid }}' in [loadbalancer] {
+        mutate {
+          add_tag => {{ item.tags }}
+        }
+      }
 {% endfor %}
     }
-    if "us-east-1" in [tags] {
+{% endif %}
+{% if elb.us_east_1 is defined %}
+    if 'us-east-1' in [tags] {
 {% for item in elb.us-east-1 %}
-	if "{{ elb.us-east-1.name }}" in [loadbalancer] {
-	    mutate {
-		add_tag => [ "{{ elb.us-east-1.tag }}" ]
-	    }
-	}
+      if '{{ item.elbid }}' in [loadbalancer] {
+        mutate {
+          add_tag => {{ item.tags }}
+        }
+      }
 {% endfor %}
     }
+{% endif %}
+  }
 }
